@@ -2,9 +2,11 @@ package com.yamaguchi.milagre.controllers;
 
 import com.yamaguchi.milagre.models.MilagreModel;
 import com.yamaguchi.milagre.services.MilagreService;
+import jdk.internal.net.http.ResponseTimerEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -15,23 +17,32 @@ public class MilagreController {
     private MilagreService milagreService;
 
     @PostMapping
-    public MilagreModel criar(@RequestBody MilagreModel milagreModel){
-        return milagreService.criar(milagreModel);
+    public ResponseEntity<MilagreModel> criar(@RequestBody MilagreModel milagreModel){
+        MilagreModel requeste = milagreService.criar(milagreModel);
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(milagreModel.getId())
+                .toUri();
+        return ResponseEntity.created(uri).body(requeste);
     }
 
     @GetMapping
-    public List<MilagreModel> milagreModelList(){
-        return  milagreService.milagreModelList();
+    public ResponseEntity<List<MilagreModel>> milagreModelList(){
+        List<MilagreModel> requeste = milagreService.findAll();
+        return  ResponseEntity.ok().body(requeste);
     }
 
     @DeleteMapping("/{id}")
-    public void deletar(@PathVariable Long id){
+    public ResponseEntity<?> deletar(@PathVariable Long id){
         milagreService.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
-    public MilagreModel atualizar(@PathVariable Long id,@RequestBody MilagreModel milagreModel){
-        return milagreService.atualizar(id, milagreModel);
+    public ResponseEntity<MilagreModel> atualizar(@PathVariable Long id,@RequestBody MilagreModel milagreModel){
+        MilagreModel requeste = milagreService.atualizar(id, milagreModel);
+        return ResponseEntity.ok().body(requeste);
     }
 
 }
